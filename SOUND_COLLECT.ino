@@ -4,18 +4,19 @@
 #define SENSOR_SAMPLES 1024  //buffer size
 
 #define AXIS 1        //microphone is 1 axis
-#define DOWNSAMPLE 8  //microphone as a very high data rate, we downsample it
+#define DOWNSAMPLE 7  //microphone as a very high data rate, we downsample it
 /* Prototypes ----------------------------------------------------------*/
 void get_microphone_data();  //function to collect buffer of sound
 /* Global variables ----------------------------------------------------------*/
 static uint16_t neai_ptr = 0;                               //pointers to fill for sound buffer
 static float neai_buffer[SENSOR_SAMPLES * AXIS] = { 0.0 };  //souhnd buffer
 int const AMP_PIN = A0;                                     // Preamp output pin connected to A0
+int const DBG_PIN = D7;    
 int state = LOW;
 int myloop = 0;
 /* Setup function ----------------------------------------------------------*/
 void setup() {
-	pinMode(D7, OUTPUT);
+	pinMode(DBG_PIN, OUTPUT);
 
 	pinMode(LED_BUILTIN, OUTPUT);
 	Serial.begin(115200);
@@ -37,11 +38,11 @@ void get_microphone_data() {
 		//we only get a value every DOWNSAMPLE (32 in this case)
 		if (sub > DOWNSAMPLE) {
 			/* Fill neai buffer with new accel data */
-			neai_buffer[neai_ptr] = analogRead(AMP_PIN);
+			neai_buffer[neai_ptr] = (float) analogRead(AMP_PIN);
 			/* Increment neai pointer */
 			neai_ptr++;
 			sub = 0;  //reset increment
-			digitalWrite(D7, state);		//per debug, capire la velocità di campinamento
+			digitalWrite(DBG_PIN, state);		//per debug, capire la velocità di campinamento
 			state = !state;
 		} else {
 			//we read the sample even if we don't use it
